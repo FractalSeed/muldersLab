@@ -4,55 +4,42 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.io.File;
 import java.io.IOException;
-import java.util.Random;
-
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-class Surface extends JPanel implements ActionListener {
+class Surface extends JPanel implements Runnable {
 
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private final int DELAY = 100;
-    private Timer timer;
+	private long DELAY =10000;
     public BufferedImage image ;
-    public static int sizex= 400;
-    public static int sizey = 400;
+    public static int sizex = 200;
+    public static int sizey = 200;
+    public static int CELLSIZE = 10;
+    public static int nCELL = sizex/CELLSIZE;
     int lastx = 0, lasty = 0;
     int c = 0;
+    int[][] result;
+    Thread t;
     public Surface() throws IOException {
 //    	image =  new ImageIcon("science.jpg").getImage();
-    	image =(BufferedImage) (ImageCompressor.resizeImageIcon(new ImageIcon("science.jpg"), new Integer(40), new Integer( 40)).getImage());
-        initTimer();
+    	image =(BufferedImage) (ImageCompressor.resizeImageIcon(new ImageIcon("science.jpg"), new Integer(nCELL), new Integer( nCELL)).getImage());
+    	result = convertTo2DUsingGetRGB(image);
+    	t = new Thread(this);
+    	t.start();
     }
 
-    private void initTimer() {
-
-        timer = new Timer(DELAY, this);
-        timer.start();
-    }
-    
-    public Timer getTimer() {
-        
-        return timer;
-    }
 
     private void doDrawing(Graphics g) {
-    	c = c+1;
+    	c = (c+1)%nCELL;
     	Color color = Color.WHITE;
     	switch(c%3)
     	{
@@ -69,32 +56,32 @@ class Surface extends JPanel implements ActionListener {
         Graphics2D g2d = (Graphics2D) g;
 
         g2d.setPaint(color);
-
+        
         int w = getWidth();
         int h = getHeight();
-
-        Random r = new Random();
-
-        for (int i = 0; i < w/10; i++) {
-        	int x = Math.abs(i) % w*10;
-        	for(int j=0; j<h/10;j++)
+        g2d.clearRect(0, 0, w, h);
+        for (int i = 0; i < w/CELLSIZE; i++) {
+        	int x = i % w*CELLSIZE;
+        	for(int j=c; j<h/CELLSIZE;j++)
         	{
-        		int y =  Math.abs(j) % h*10;
+        		int y = j % h*CELLSIZE;
         		g2d.setPaint(Color.white);
-        		g2d.drawRect(x, y, 9, 9);
+        		g2d.drawRect(x, y, CELLSIZE, CELLSIZE);
         		
-        		int[][] result = convertTo2DUsingGetRGB(image);
-        		if(i<image.getHeight() && j < image.getWidth())
+        		
+        		if(c==j)
         		color = new Color(result[i][j]);
+        		else
+        		color = Color.white;
         		g2d.setPaint(color);
-        		g2d.fillRect(x, y, 9, 9);
-//        		if(i==c%40 && j ==i)
-//            		g2d.fillRect(x, (c%40) % h*10, 9, 9);
+        		g2d.fillRect(x, y, CELLSIZE, CELLSIZE);
         	}
-        	
+        g2d.setPaint(Color.RED);
+        byte[] data = Long.toString(DELAY).getBytes();
+        g2d.drawBytes(data, 0	, data.length, 10, 10);
             
         }
-//        g2d.drawImage(image, 0, 0, null);
+       
     }
 
     @Override
@@ -104,10 +91,6 @@ class Surface extends JPanel implements ActionListener {
         doDrawing(g);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        repaint();
-    }
     
     private static int[][] convertTo2DUsingGetRGB(BufferedImage image) {
         int width = image.getWidth();
@@ -123,6 +106,20 @@ class Surface extends JPanel implements ActionListener {
         return result;
      }
 
+	@Override
+	public void run() {
+		while(true) {
+			repaint();
+			DELAY = DELAY+1000;
+			long i = DELAY * 1;
+			while(i>0) {
+				i--;
+			}
+		
+		}
+	}
+
+    
 }
 
 public class Main extends JFrame {
@@ -145,8 +142,7 @@ public class Main extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                Timer timer = surface.getTimer();
-                timer.stop();
+            	
             }
         });
 
