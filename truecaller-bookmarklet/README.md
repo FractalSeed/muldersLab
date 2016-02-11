@@ -1,4 +1,4 @@
-#####A simple bookmarklet for looking up phone numbers on [Truecaller](http://www.truecaller.com/in) India.
+#####A simple bookmarklet for looking up phone numbers on [Truecaller](http://www.truecaller.com) India.
 
 
 1. Right click on your bookmark bar and select  'Add Page'
