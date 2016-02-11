@@ -4,9 +4,10 @@
 1. Right click on your bookmark bar and select  'Add Page'
 2. In Name box type + Truecaller
 3. In URL box copy and paste the following
+  ```
+  javascript: (function () {function getSelectionText() {var selectedText = "";if (window.getSelection) { selectedText = window.getSelection().toString();} return selectedText};function OpenInNewTab(url) {  var win = window.open(url, '_blank');  win.focus();};var doc = document;var text = getSelectionText();if(text){var href = 'https://truecaller.com/in/' + encodeURIComponent(text);OpenInNewTab(href);}})()
 
-  `javascript: (function () {function getSelectionText() {var selectedText = "";if (window.getSelection) { selectedText = window.getSelection().toString();} return selectedText};function OpenInNewTab(url) {  var win = window.open(url, '_blank');  win.focus();};var doc = document;var text = getSelectionText();if(text){var href = 'https://truecaller.com/in/' + encodeURIComponent(text);OpenInNewTab(href);}})()`
-
+  ```
 4. Select phone number text in any page
 5. Click on the bookmark just created and see the magic :)
 
